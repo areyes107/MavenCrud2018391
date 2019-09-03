@@ -13,12 +13,10 @@ import org.angelreyes.dao.exceptions.NonexistentEntityException;
 import org.angelreyes.dao.exceptions.PreexistingEntityException;
 import org.angelreyes.dominio.Persona;
 
-/**
- *
- * @author programacion
- */
+
 public class PersonaJpaController implements Serializable {
     private EntityManagerFactory emf = null;
+   
     public PersonaJpaController() {
         this.emf = Persistence.createEntityManagerFactory("MyDatabaseConexion");
     }
@@ -27,7 +25,7 @@ public class PersonaJpaController implements Serializable {
         return emf.createEntityManager();
     }
 
-    public void agregarPersona(Persona persona) throws PreexistingEntityException, Exception {
+    public boolean agregarPersona(Persona persona){
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -35,15 +33,13 @@ public class PersonaJpaController implements Serializable {
             em.persist(persona);
             em.getTransaction().commit();
         } catch (Exception ex) {
-            if (buscarPersona(persona.getCodigoPersona()) != null) {
-                throw new PreexistingEntityException("Persona " + persona + " already exists.", ex);
-            }
-            throw ex;
+            return false;
         } finally {
             if (em != null) {
                 em.close();
             }
         }
+        return true;
     }
 
     public void editarPersona(Persona persona) throws NonexistentEntityException, Exception {
@@ -134,6 +130,10 @@ public class PersonaJpaController implements Serializable {
         } finally {
             em.close();
         }
+    }
+    
+    public void cerrar(){
+        emf.close();
     }
     
 }
